@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!--<conversionRule conversionWord="msg" converterClass="com.szkingdom.jros.msf.context.log.LogMessageConverter" />-->
+    <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+    <springProperty scope="context" name="appNodeId" source="sysconfig.nodeid"/>
+    <!-- Example for logging into the build folder of your project -->
+    <property name="LOG_FILE" value="./"/>
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %level --- [%15.15t] %-40.40logger{39}-%line : %msg%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx} %n"/>
+    <!-- Appender to log to console -->
+    <!-- 控制台输出 -->
+    <appender name="consoleDataAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- Minimum logging level to be presented in the console logs-->
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--  蜂巢系统业务日志 -->
+    <appender name="businessDataAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 按天滚动文件，如果一天内达到256M也会滚动文件, 滚动文件将会压缩成zip格式 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}/%d{yyyyMM,AUX}/business/tools.%d{yyyyMMdd}-%i.log.zip</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>20MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 独立的pattern -->
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 日志输出级别 默认info -->
+
+    <!-- 蜂巢业务 -->
+    <logger name="businessLogData" additivity="false" level="info">
+        <appender-ref ref="businessDataAppender"/>
+    </logger>
+    <!-- 定向输出日志配置  -->
+
+    <root level="info">
+        <appender-ref ref="consoleDataAppender"/>
+        <appender-ref ref="businessDataAppender"/>
+    </root>
+</configuration>
